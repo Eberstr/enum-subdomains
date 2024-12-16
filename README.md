@@ -1,7 +1,7 @@
 # enum-subdomains
 
 ### TODO:  
-- Add httprobe verification
+- fix gowitness command
 
 **Bash script to automate subdomain enumeration.**  
 This script combines the results from three different tools (Subfinder, Assetfinder, and Amass) to create a list of subdomains, which is then 

@@ -13,5 +13,7 @@ git clone https://github.com/Eberstr/enum-subdomains.git
 
 cd enum-subdomains
 
+chmod +x enum-subdomains.sh
+
 ./enum-subdomains.sh example.com
 ```

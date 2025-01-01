@@ -10,76 +10,57 @@ purpleColour="\e[0;35m\033[1m"
 turquoiseColour="\e[0;36m\033[1m"
 grayColour="\e[0;37m\033[1m"
     
+domain=$1
+screenshots=$domain/screenshots
 
-domain="$1"
-
-if [ -z $domain ]; then
-	echo -e "\n\n${redColour}[i] Dominio no espeficado${endColour}\n"
-	exit 1
-fi
+tput civis
 
 ctrl_c(){
 	echo -e "\n\n${redColour}[i] Saliendo...${endColour}\n"
 	tput cnorm && exit 1
 }
 
-#ctrl c
+# ctrl_c
 trap ctrl_c INT
 
-# tools_verfication(){
+if [ -z $domain ]; then
+	echo -e "\n\n${redColour}[i] Dominio no espeficado${endColour}\n"
+	exit 1
+fi
 
-# }
+# Folders creation
+if [ ! -d "$domain" ]; then
+	mkdir $domain
+fi
 
-subfinder_enum(){
-	
-	echo -e "\nEnumerando con subfinder"
-	echo -e "=========================="
-	subfinder -silent -d $domain -o subfinderfounds.txt
+if [! -d "$screenshots" ]
+	mkdir $screenshots
+fi
 
-}
+echo -e "\n\n${greenColour}[+] Enumerando con subfinder${endColour}"
+echo -e "=========================="
+subfinder -silent -d $domain >> $domain/subdomains.txt
 
-assetfinder_enum(){
 
-	echo -e "\nEnumerando con assetfinder"
-	echo -e "============================"
-	echo -e 
-	assetfinder $domain > assetfinderfounds.txt
+echo -e "\n\n${greenColour}Enumerando con assetfinder${endColour}"
+echo -e "============================"
+assetfinder $domain | grep $domain >> $domain/subdomains.txt
 
-}
 
-amass_enum(){
+echo -e "\n\n${greenColour}Enumerando con amass${endColour}"
+echo -e "======================"
+amass enum -d $domain | grep $domain | awk '{print $1}' | sort -u >> $domain/subdomains.txt 
 
-	echo -e "\nEnumerando con amass"
-	echo -e "======================"
-	amass enum -d $domain | grep $domain | awk '{print $1}' | sort -u > amassfounds.txt 
 
-}
+echo -e "\n${greenColour}Encontrando dominios vivos${endColour}"
+echo -e "\n=========================="
+cat $domain/subdomains.txt | grep $domain | sort -u | httprobe -prefer-http | grep https | tr -d '//' | cut -d ':' -f 2 | tee -a $domain/alive.txt
 
-parse_results(){
-	
-	tput civis
-	subfinder_enum $domain
-	assetfinder_enum $domain
-	amass_enum $domain
+echo -e "\n\n${greenColour}Tomando screenshots de los dominios vivos${endColour}"
+echo -e "\n===================="
+gowitness file -f $domain/alive.txt -P $screenshot/ --no-http
+tput cnorm
 
-	cat assetfinderfounds.txt amassfounds.txt subfinderfounds.txt | grep $domain | awk '{print $1}' | sort -u >> subdomains_final.txt 
-}
 
-alive_domains(){
-	echo -e "\nEncontrando dominios vivos"
-	echo -e "\n=========================="
-	cat subdomains_final.txt | httprobe > subdomains_alive.txt
-	rm subdomains_final.txt 
-
-	echo -e "\nVisitando los sitios"
-	echo -e "\n===================="
-	mkdir sitepics
-	cat subdomains_alive.txt | tr -d '//' | cut -d ':' -f 2 | xargs gowitness -P sitepics
-	tput cnorm
-}
-
-parse_results
-alive_domains
-rm subfinderfounds.txt assetfinderfounds.txt amassfounds.txt
 
 

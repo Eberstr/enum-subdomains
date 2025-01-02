@@ -45,13 +45,22 @@ subfinder -silent -d $domain >> $domain/subdomains.txt
 echo -e "\n\n${greenColour}Enumerando con assetfinder${endColour}"
 echo -e "============================"
 assetfinder $domain | grep $domain >> $domain/subdomains.txt
+
+
+while true; do
+	echo -ne "${yellowColour}[?] Usar amass? [Y/n] ${endColour}" && read ans
+  
+	if [[ -z $ans || $ans == "Y" || $ans == "y" ]]; then
+		echo -e "\n\n${greenColour}Enumerando con amass${endColour}"
+		echo -e "======================"
 		amass enum -d $domain | grep $domain | awk '{print $1}' | sort -u >> $domain/subdomains.txt
 		break
+		
 	elif [[ $ans == "N" || $ans == "n" ]]; then
 		echo -e "\n\n${greenColour}Saltando escaneo con amass${endColour}"
 		break
 	else
-		echo -e "\n\n${redColour}[!] Opcion incorrecta${endColour}"
+		echo -e "\n\n${redColour}[!] Opción incorrecta.${endColour}"
 	fi
 done
 

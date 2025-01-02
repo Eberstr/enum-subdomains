@@ -33,7 +33,7 @@ if [ ! -d "$domain" ]; then
 	mkdir $domain
 fi
 
-if [ ! -d "$screenshots" ]
+if [ ! -d "$screenshots" ]; then
 	mkdir $screenshots
 fi
 

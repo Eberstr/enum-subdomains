@@ -33,7 +33,7 @@ if [ ! -d "$domain" ]; then
 	mkdir $domain
 fi
 
-if [! -d "$screenshots" ]
+if [ ! -d "$screenshots" ]
 	mkdir $screenshots
 fi
 
@@ -45,12 +45,15 @@ subfinder -silent -d $domain >> $domain/subdomains.txt
 echo -e "\n\n${greenColour}Enumerando con assetfinder${endColour}"
 echo -e "============================"
 assetfinder $domain | grep $domain >> $domain/subdomains.txt
-
-
-echo -e "\n\n${greenColour}Enumerando con amass${endColour}"
-echo -e "======================"
-amass enum -d $domain | grep $domain | awk '{print $1}' | sort -u >> $domain/subdomains.txt 
-
+		amass enum -d $domain | grep $domain | awk '{print $1}' | sort -u >> $domain/subdomains.txt
+		break
+	elif [[ $ans == "N" || $ans == "n" ]]; then
+		echo -e "\n\n${greenColour}Saltando escaneo con amass${endColour}"
+		break
+	else
+		echo -e "\n\n${redColour}[!] Opcion incorrecta${endColour}"
+	fi
+done
 
 echo -e "\n${greenColour}Encontrando dominios vivos${endColour}"
 echo -e "\n=========================="
@@ -59,6 +62,7 @@ cat $domain/subdomains.txt | grep $domain | sort -u | httprobe -prefer-http | gr
 echo -e "\n\n${greenColour}Tomando screenshots de los dominios vivos${endColour}"
 echo -e "\n===================="
 gowitness file -f $domain/alive.txt -P $screenshot/ --no-http
+
 tput cnorm
 
 

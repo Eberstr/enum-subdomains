@@ -42,35 +42,35 @@ echo -e "=========================="
 subfinder -silent -d $domain >> $domain/subdomains.txt
 
 
-echo -e "\n\n${greenColour}Enumerando con assetfinder${endColour}"
+echo -e "\n\n${greenColour}[+] Enumerando con assetfinder${endColour}"
 echo -e "============================"
 assetfinder $domain | grep $domain >> $domain/subdomains.txt
 
 
 while true; do
-	echo -ne "${yellowColour}[?] Usar amass? [Y/n] ${endColour}" && read ans
+	echo -ne "\n\n${yellowColour}[?] Usar amass? [Y/n] ${endColour}" && read ans
   
 	if [[ -z $ans || $ans == "Y" || $ans == "y" ]]; then
-		echo -e "\n\n${greenColour}Enumerando con amass${endColour}"
+		echo -e "\n\n${greenColour}[+] Enumerando con amass${endColour}"
 		echo -e "======================"
 		amass enum -d $domain | grep $domain | awk '{print $1}' | sort -u >> $domain/subdomains.txt
 		break
 		
 	elif [[ $ans == "N" || $ans == "n" ]]; then
-		echo -e "\n\n${greenColour}Saltando escaneo con amass${endColour}"
+		echo -e "\n\n${greenColour}[+] Saltando escaneo con amass${endColour}"
 		break
 	else
 		echo -e "\n\n${redColour}[!] Opción incorrecta.${endColour}"
 	fi
 done
 
-echo -e "\n${greenColour}Encontrando dominios vivos${endColour}"
-echo -e "\n=========================="
-cat $domain/subdomains.txt | grep $domain | sort -u | httprobe -prefer-http | grep https | tr -d '//' | cut -d ':' -f 2 | tee -a $domain/alive.txt
+echo -e "\n${greenColour}[+] Encontrando dominios vivos${endColour}"
+echo -e "=========================="
+cat $domain/subdomains.txt | grep $domain | sort -u | httprobe -prefer-https | grep https | tr -d '//' | cut -d ':' -f 2 | tee -a $domain/alive.txt
 
-echo -e "\n\n${greenColour}Tomando screenshots de los dominios vivos${endColour}"
-echo -e "\n===================="
-gowitness file -f $domain/alive.txt -P $screenshot/ --no-http
+echo -e "\n\n${greenColour}[+] Tomando screenshots de los dominios vivos${endColour}"
+echo -e "===================="
+gowitness scan file -f $domain/alive.txt -s $screenshot/ --no-http
 
 tput cnorm
 

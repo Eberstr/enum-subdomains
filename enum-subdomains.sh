@@ -70,7 +70,7 @@ cat $domain/subdomains.txt | grep $domain | sort -u | httprobe -prefer-https | g
 
 echo -e "\n\n${greenColour}[+] Tomando screenshots de los dominios vivos${endColour}"
 echo -e "===================="
-gowitness scan file -f $domain/alive.txt -s $screenshot/ --no-http
+gowitness scan file -f $domain/alive.txt -s $screenshots/ --no-http
 
 tput cnorm
 
